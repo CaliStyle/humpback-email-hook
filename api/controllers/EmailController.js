@@ -1,0 +1,7 @@
+/**
+ * Email Controller
+ */
+module.exports = {
+	
+
+}
