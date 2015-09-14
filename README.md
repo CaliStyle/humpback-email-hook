@@ -1,17 +1,17 @@
-##Humpback GUI Hook
+##Humpback Email Hook
 
 ## Status
 
 > ##### Stability: [1](http://nodejs.org/api/documentation.html#documentation_stability_index) - Experimental
 
-This is the GUI "hook" for humpback.  All humpback hooks we refer to as 
-barnacles.  This hooks does the following:
-  * Creates a GUI data interface
-  * Allows for Email Configuration
+This is the Email "hook" for humpback.  All humpback hooks we refer to as 
+barnacles.  This hook does the following:
+  * Creates a GUI email interface
+  * Allows for Email Configuration and Email Templates
 
-[![Dependency Status](https://david-dm.org/balderdashy/sails-hook-email.svg)](https://david-dm.org/balderdashy/sails-hook-email)
+[![Dependency Status](https://david-dm.org/CaliStyle/humpback-email-hook.svg)](https://david-dm.org/CaliStyle/humpback-email-hook)
 
-Email hook for [Sails JS](http://sailsjs.org), using [Nodemailer](https://github.com/andris9/Nodemailer/blob/v1.3.4/README.md)
+Email hook for [Humpback](https://github.com/CaliStyle/humpback), using [Nodemailer](https://github.com/andris9/Nodemailer/blob/v1.3.4/README.md)
 
 *Note: This requires Sails v0.11.0+.*
 
@@ -59,7 +59,7 @@ Given the following **html.ejs** file contained in the folder **views/emailTempl
 <p>Love,<br/><%=senderName%></p>
 ```
 
-executing the following command (after [configuring for your email service](https://github.com/balderdashy/sails-hook-email/#configuration) and turning off test mode) :
+executing the following command (after [configuring for your email service](https://github.com/CaliStyle/humpback-email-hook/#configuration) and turning off test mode) :
 
 ```
 sails.hooks.email.send(
