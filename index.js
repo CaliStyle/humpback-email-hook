@@ -61,10 +61,12 @@ module.exports = function Email(sails) {
     defaults: {
       routes: {
         'get /admin/email': {
-          view: 'admin/index'
+          view: 'admin/index',
+          defaultPermissions: ['admin']
         },
         'get /admin/email/*': {
-          view: 'admin/index'
+          view: 'admin/index',
+          defaultPermissions: ['admin']
         }
       },
       __configKey__: {
@@ -253,7 +255,7 @@ module.exports = function Email(sails) {
         if (err) {
           return cb(err);
         }
-        
+
         cb(null, results.sendEmail);
       });
     }
