@@ -24,6 +24,23 @@
     "email": "scott@calistyletechnologies.com",
     "url": "https://github.com/scott-wyatt"
   },
+  "contributors": [
+    {
+      "name": "Balderdash"
+    },
+    {
+      "name": "Cody Stoltman"
+    },
+    {
+      "name": "Mike McNeil"
+    },
+    {
+      "name": "Scott Gress"
+    },
+    {
+      "name": "Dan Prietti"
+    }
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/CaliStyle/humpback-email-hook/issues"
@@ -36,10 +53,15 @@
     }
   ],
   "dependencies": {
-    "bcryptjs": "^2.1",
     "bluebird": "^2.9.30",
     "sails": "^0.11.0",
-    "sails-disk": "^0.10.7"
+    "sails-disk": "^0.10.7",
+    "ejs": "^2.3.1",
+    "nodemailer": "^1.3.4",
+    "nodemailer-html-to-text": "^1.0.1",
+    "nodemailer-smtp-pool": "^1.1.1",
+    "async": "0.9.0",
+    "lodash": "3.2.0"
   },
   "devDependencies": {
     "lodash": ">2.4.0",
