@@ -36,6 +36,20 @@ module.exports = {
   	},
 
 	attributes: {
-        
+        name: {
+            type: 'string',
+            unique: true,
+            index: true
+        },
+        html: {
+            type: 'string'
+        },
+        text: {
+            type: 'string'
+        },
+        webhooks: {
+            type: 'array',
+            defaultsTo: []
+        }
     }
 }

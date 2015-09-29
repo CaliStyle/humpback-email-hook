@@ -21,7 +21,7 @@ Email hook for [Humpback](https://github.com/CaliStyle/humpback), using [Nodemai
 
 ### Usage
 
-`sails.hooks.email.send(template, data, options, cb)`
+`sails.hooks.['humpback-email-hook'].send(template, data, options, cb)`
 
 Parameter      | Type                | Details
 -------------- | ------------------- |:---------------------------------

@@ -4,10 +4,11 @@
 module.exports = {
   
   send: function(req, res) {
-    sails.hooks.email.send(
+    
+    sails.hooks['humpback-email-hook'].send(
       "testEmail", {
-        recipientName: "Joe",
-        senderName: "Sue"
+        recipientName: "Myles Golden",
+        senderName: "Scott Wyatt"
       }, {
         to: "joe@example.com",
         subject: "Hi there"
@@ -17,6 +18,7 @@ module.exports = {
         return res.ok();
       }
     );
+
   },
 
   show: function(req, res) {
