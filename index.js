@@ -242,7 +242,9 @@ module.exports = function Email(sails) {
 
         Promise.bind({}, _initializeFixtures()
           .then(function (count) {
-          
+            
+            sails.log.silly(count);
+
             // Optimization for later on: precompile all the templates here and
             // build up a directory of named functions.
             //
@@ -301,7 +303,7 @@ module.exports = function Email(sails) {
 
             }
 
-        })
+          })
           .catch(function (error) {
             sails.log.error(error);
             next(error);
