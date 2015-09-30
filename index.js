@@ -21,21 +21,24 @@ var _settings = [
     setting: '',
     type: 'string',
     description: 'A "well-known service" that Nodemailer knows how to communicate with',
-    title: 'Email Service'
+    title: 'Email Service',
+    secure: true
   },
   { 
     name: 'email.auth',
-    setting : '{user: "", pass: ""}',
+    setting : '{"user": "", "pass": ""}',
     type: 'json',
     description: 'Authentication object as {user:"...", pass:"..."}',
-    title: 'Email Authorization'
+    title: 'Email Authorization',
+    secure: true
   },
   { 
     name: 'email.transporter',
     setting: 'Gmail',
-    type: 'json',
+    type: 'string',
     description: 'Custom transporter passed directly to nodemailer.createTransport (overrides service/auth)',
-    title: 'Email Transporter'
+    title: 'Email Transporter',
+    secure: true
   },
 
   /* Let's make this the default and not a setting
@@ -53,21 +56,24 @@ var _settings = [
     setting: '',
     type: 'string',
     description: 'Default from email address',
-    title: 'Email From'
+    title: 'Email From',
+    secure: true
   },
   { 
     name: 'email.testMode',
     setting: 'true',
     type: 'boolean',
     description: 'Flag indicating whether the hook is in "test mode". In test mode, email options and contents are written to a .tmp/email.txt file instead of being actually sent. Defaults to true.',
-    title: 'Email Test Mode'
+    title: 'Email Test Mode',
+    secure: true
   },
   { 
     name: 'email.alwaysSendTo',
     setting: '',
     type: 'string',
     description: 'If set, all emails will be sent to this address regardless of the to option specified. Good for testing live emails without worrying about accidentally spamming people.',
-    title: 'Email Always Send To'
+    title: 'Email Always Send To',
+    secure: true
   }
 
 ];
@@ -78,8 +84,8 @@ var _settings = [
  * private
  */
 
-function _initializeFixtures () {
-    return require('./lib/emails/templates').createTemplates()
+//function _initializeFixtures () {
+  //  return require('./lib/emails/templates').createTemplates()
     //.bind({ })
     /*
     .then(function (templates) {
@@ -96,10 +102,10 @@ function _initializeFixtures () {
 
     })
     */
-    .catch(function (err) {
-      sails.log.error(err);
-    });
-}
+    //.catch(function (err) {
+     /// sails.log.error(err);
+    //});
+//}
 
 
 /**
@@ -115,41 +121,45 @@ function _initializeFixtures () {
  * @hook
  */
 
-module.exports = function Email(sails) {
-  
-  var transport;
+var transport;
   //var self;
 
-  var compileTemplate = function (view, data, cb) {
-    // Use Sails View Hook if available
-    if (sails.hooks.views && sails.hooks.views.render) {
-      var relPath = path.relative(sails.config.paths.views, view);
-      sails.hooks.views.render(relPath, data, cb);
-      return;
+var _compileTemplate = function (view, data, cb) {
+  // Use Sails View Hook if available
+  if (sails.hooks.views && sails.hooks.views.render) {
+    var relPath = path.relative(sails.config.paths.views, view);
+    sails.hooks.views.render(relPath, data, cb);
+    return;
+  }
+
+  // No Sails View hook, fallback to ejs
+  fs.readFile(view + '.ejs', function (err, source) {
+    if (err){
+      return cb(err);
+    } 
+
+    try {
+      var compileFn = ejs.compile((source || '').toString(), {
+        cache: true, filename: view
+      });
+
+      cb(null, compileFn(data));
+    } catch (e) {
+      return cb(e);
     }
+  });
+};
 
-    // No Sails View hook, fallback to ejs
-    fs.readFile(view + '.ejs', function (err, source) {
-      if (err){
-        return cb(err);
-      } 
+var _resolveEmailSetting = function (name){
+  return sails.config.humpback.secure[name] ? sails.config.humpback.secure[name] : sails.config.humpback.notsecure[name];
+};
 
-      try {
-        var compileFn = ejs.compile((source || '').toString(), {
-          cache: true, filename: view
-        });
-
-        cb(null, compileFn(data));
-      } catch (e) {
-        return cb(e);
-      }
-    });
-  };
-
+module.exports = function (sails) {
   return { 
+
     defaults: {
       humpback: {
-        emailModelIdentity: 'email',
+        emailModelIdentity: 'email'
       },
       routes: {
         'get /admin/email': {
@@ -240,10 +250,10 @@ module.exports = function Email(sails) {
         }
 
 
-        Promise.bind({}, _initializeFixtures()
-          .then(function (count) {
-            
-            sails.log.silly(count);
+        //Promise.bind({}, _initializeFixtures()
+          //.then(function (count) {
+            sails.emit('hook:humpback:email:loaded');
+            //sails.log.silly(count);
 
             // Optimization for later on: precompile all the templates here and
             // build up a directory of named functions.
@@ -302,13 +312,14 @@ module.exports = function Email(sails) {
               }
 
             }
-
+          /*
           })
           .catch(function (error) {
             sails.log.error(error);
             next(error);
           })
-        );
+        );  
+        */
 
       }); 
     },
@@ -328,6 +339,7 @@ module.exports = function Email(sails) {
       var self = this;
 
       data = data || {};
+      
       // Turn off layouts by default
       if (typeof data.layout === 'undefined'){
         data.layout = false;
@@ -336,9 +348,10 @@ module.exports = function Email(sails) {
       var templateDir = sails.config[self.configKey].templateDir;
       var templatePath = path.join(templateDir, template);
 
+      var from = _resolveEmailSetting('email.from');
       // Set some default options
       var defaultOptions = {
-        from: sails.config[self.configKey].from
+        from: from
       };
 
       sails.log.verbose('EMAILING:', options);
@@ -346,12 +359,12 @@ module.exports = function Email(sails) {
       async.auto({
         // Grab the HTML version of the email template
         compileHtmlTemplate: function (next) {
-          compileTemplate(templatePath + '/html', data, next);
+          _compileTemplate(templatePath + '/html', data, next);
         },
 
         // Grab the Text version of the email template
         compileTextTemplate: function (next) {
-          compileTemplate(templatePath + '/text', data, function (err, html) {
+          _compileTemplate(templatePath + '/text', data, function (err, html) {
             // Don't exit out if there is an error, we can generate plaintext
             // from the HTML version of the template.
             if (err){
@@ -365,6 +378,7 @@ module.exports = function Email(sails) {
         sendEmail: ['compileHtmlTemplate', 'compileTextTemplate', function (next, results) {
 
           defaultOptions.html = results.compileHtmlTemplate;
+          
           if (results.compileTextTemplate){
             defaultOptions.text = results.compileTextTemplate;
           }
@@ -376,7 +390,7 @@ module.exports = function Email(sails) {
           //   subject: 'Hello World'
           // }
           var mailOptions = _.defaults(options, defaultOptions);
-          mailOptions.to = sails.config[self.configKey].alwaysSendTo || mailOptions.to;
+          mailOptions.to = _resolveEmailSetting('email.alwaysSendTo') || mailOptions.to;
 
           transport.sendMail(mailOptions, next);
         }]

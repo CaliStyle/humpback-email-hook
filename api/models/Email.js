@@ -41,7 +41,13 @@ module.exports = {
             unique: true,
             index: true
         },
+        htmlFile: {
+            type: 'string'
+        },
         html: {
+            type: 'string'
+        },
+        textFile: {
             type: 'string'
         },
         text: {
